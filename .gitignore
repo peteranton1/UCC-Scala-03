@@ -330,4 +330,4 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/java,scala,intellij+all,eclipse,netbeans,windows,macos,linux,gradle,maven,sbt
-/Scala-03/Scala-03.iml
+*.iml
