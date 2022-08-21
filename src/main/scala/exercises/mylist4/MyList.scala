@@ -1,23 +1,13 @@
-package exercises.mylist3
+package exercises.mylist4
 
 trait MyPredicate[-T] {
-  def test(t: T): Boolean
+  def apply(t: T): Boolean
 }
 trait MyTransformer[-A, B] {
-  def transform(a: A): B
+  def apply(a: A): B
 }
 /*
-MyList:
-- map(transformer) => MyList
-- filter(predicate) => MyList
-- flatMap(transformer from A to MyList[B]) => MyList[B]
-
-class EvenPredicate extends MyPredicate[Int]
-class StringToIntTransformer extends MyTransformer[String, Int]
-
-[1,2,3].map(n + 2) = [2,4,6]
-[1,2,3,4].filter(n % 2) = [2,4]
-[1,2,3].flatMap(n => [n, n+1]) => [1,2,2,3,3,3,4]
+Demonstrate the use of apply()
 */
 
 abstract class MyList[+A] {
@@ -28,14 +18,10 @@ abstract class MyList[+A] {
   def add[B >: A](element: B): MyList[B]
   def printElements: String
   override def toString: String = "[" + printElements + "]"
-  /*
-    - map(transformer) => MyList
-    - filter(predicate) => MyList
-    - flatMap(transformer from A to MyList[B]) => MyList[B]
-  */
-  def map[B](t: MyTransformer[A, B]): MyList[B]
-  def flatMap[B](t: MyTransformer[A, MyList[B]]): MyList[B]
-  def filter(p: MyPredicate[A]): MyList[A]
+
+  def map[B](transformer: MyTransformer[A, B]): MyList[B]
+  def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B]
+  def filter(predicate: MyPredicate[A]): MyList[A]
 
   def ++[B >: A](list: MyList[B]): MyList[B]
 }
@@ -47,11 +33,11 @@ object Empty extends MyList[Nothing] {
   def add[B >: Nothing](element: B): MyList[B] =
     Cons(element, Empty)
   def printElements: String = ""
-  def map[B](t: MyTransformer[Nothing, B]): MyList[B] =
+  def map[B](transformer: MyTransformer[Nothing, B]): MyList[B] =
     Empty
-  def filter(p: MyPredicate[Nothing]): MyList[Nothing] =
+  def filter(predicate: MyPredicate[Nothing]): MyList[Nothing] =
     Empty
-  def flatMap[B](t: MyTransformer[Nothing, MyList[B]]): MyList[B] =
+  def flatMap[B](transformer: MyTransformer[Nothing, MyList[B]]): MyList[B] =
     Empty
 
   def ++[B >: Nothing](list: MyList[B]): MyList[B] = list
@@ -69,18 +55,18 @@ case class Cons[+A](h: A,
     if (t.isEmpty) "" + h
     else h.toString + " " + t.printElements
 
-  def filter(p: MyPredicate[A]): MyList[A] =
-    if(p.test(head)) Cons(h, t.filter(p))
-    else t.filter(p)
+  def filter(predicate: MyPredicate[A]): MyList[A] =
+    if(predicate(head)) Cons(h, t.filter(predicate))
+    else t.filter(predicate)
 
   def map[B](transformer: MyTransformer[A, B]): MyList[B] =
-    Cons(transformer.transform(h), t.map(transformer))
+    Cons(transformer(h), t.map(transformer))
 
   def ++[B >: A](list: MyList[B]): MyList[B] =
     Cons(h, t ++ list)
 
   def flatMap[B](transformer: MyTransformer[A, MyList[B]]): MyList[B] =
-    transformer.transform(h) ++ t.flatMap(transformer)
+    transformer(h) ++ t.flatMap(transformer)
 }
 
 object ListTest extends App {
@@ -94,9 +80,12 @@ object ListTest extends App {
   println(listOfStrings.toString)
   println(listOfIntegers.map(elem => elem * 2))
   println(listOfIntegers.filter(elem => elem % 2 == 0))
-  println(listOfStrings.map(elem => elem + elem))
+  println(listOfStrings.map(elem => elem + "X"))
   println(listOfStrings.filter(elem => elem == "Hello"))
   println(listOfIntegers ++ anotherListOfIntegers)
   println(listOfIntegers
     .flatMap(elem => Cons(elem, Cons(elem + 1, Empty))))
+  println(listOfStrings
+    .flatMap(elem => Cons(elem, Cons(elem + "X", Empty))))
 }
+
