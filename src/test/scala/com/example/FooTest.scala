@@ -18,4 +18,14 @@ class FooTest extends UnitSpec {
       s.charAt(-1)
     }
   }
+
+  it should "throw exception with message" in {
+    val s = "hi"
+    val result = intercept[IndexOutOfBoundsException] {
+      s.charAt(-1)
+    }.getMessage
+
+    result should equal("Index -1 out of bounds for length 2")
+  }
+
 }
