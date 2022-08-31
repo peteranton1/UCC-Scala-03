@@ -9,7 +9,7 @@ object PackagingAndImports extends App {
   val writer = Writer("daniel", "int", 2003)
 
   // package objects
-  sayHello
+  sayHello()
   println(SPEED_OF_LIGHT)
 
   val prince = new PrinceCharming
